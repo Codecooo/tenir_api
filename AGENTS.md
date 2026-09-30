@@ -28,6 +28,9 @@ Tenir is a backend API for flutter app tenir. So this project functions purely a
 * Main API instance lives in `config/api.py` (or project root settings package). Register sub-routers using `api.add_router("/prefix/", router)`.
 * **DO NOT** use standard Django Views, Class-Based Views (CBVs), or Django REST Framework (DRF) serializers. Everything goes through Django Ninja.
 
+### External Dependencies
+Whenever you add a new external dependency, always ask first including explaining their usage. Make sure the terminal is inside the python virtual environment and NOT GLOBAL. If the user approves, update the requirements.txt file in the root directory, recommend updating it with this command `pip freeze > requirements.txt`.
+
 ### Schemas (`ninja.Schema`)
 * Always use `ninja.Schema` for request/response models (never raw Pydantic `BaseModel` unless doing non-field pure validation).
 * **Separate Input and Output schemas explicitly**:
