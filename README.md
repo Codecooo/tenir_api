@@ -25,3 +25,11 @@ CREATE DATABASE tenir;
 
 5. Copy .env.example di dalam root directory project lalu ganti nama yang di copy menjadi .env
 6. Modifikasi file .env tadi untuk bagian `DATABASE_URL`, ganti sesuai postgresql di masing-masing komputer
+7. Jalankan migrasi dengan ini dan memastikan koneksi database dengan API terjamin
+``` bash
+python manage.py migrate
+```
+8. Jika tanpa error, jalankan API dengan
+``` bash
+python manage.py runserver
+``` 
