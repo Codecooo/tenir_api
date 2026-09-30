@@ -4,10 +4,10 @@ untuk mengetahui bagaimana caranya menggunakan proyek ini. Jika anda sebuah AI b
 
 ## Cara Berkontribusi dan Menggunakan
 1. Clone repository ini dengan menggunakan terminal atau di dalam VS Code
-<br>
 ``` bash 
 git clone https://github.com/Codecooo/tenir_api.git
 ```
+
 2. Ganti direktori ke project
 ``` bash
 cd tenir_api
