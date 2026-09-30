@@ -12,24 +12,34 @@ git clone https://github.com/Codecooo/tenir_api.git
 ``` bash
 cd tenir_api
 ```
+3. Sebelum menginstal dependencies. Pastikan project berada dalam virtual environment python atau venv supaya bersih dari hal luar. Jalankan command ini untuk inisialisasi venv
+``` bash
+python -m venv .venv
+```
+4. Aktifkan venv dengan command ini di Windows pada terminal VS Code
+``` ps
+venv\Scripts\Activate.ps1
+```
+5. Ubah interperter Python di VS Code untuk menggunakan venv dengan cara klik `Ctr` + `Shift` + `P` setelah itu ketik `Python: Select Interperter`. Pilih yang memiliki venv di kontennya contohnya seperti dibawah
+<img width="599" height="223" alt="image" src="https://github.com/user-attachments/assets/8187151e-c26e-4e16-a264-74c87b350684" />
 
-3. Install seluruh dependencies yang dibutuhkan project ini 
+6. Install seluruh dependencies yang dibutuhkan project ini 
 ``` bash
 pip install -r requirements.txt
 ```
 
-4. Buat database baru dalam PostgreSQL dengan nama tenir. Bisa menggunakan psql atau alat lain. Contoh dalam psql:
+7. Buat database baru dalam PostgreSQL dengan nama tenir. Bisa menggunakan psql atau alat lain. Contoh dalam psql:
 ``` sql
 CREATE DATABASE tenir;
 ```
 
-5. Copy .env.example di dalam root directory project lalu ganti nama yang di copy menjadi .env
-6. Modifikasi file .env tadi untuk bagian `DATABASE_URL`, ganti sesuai postgresql di masing-masing komputer
-7. Jalankan migrasi dengan ini dan memastikan koneksi database dengan API terjamin
+8. Copy .env.example di dalam root directory project lalu ganti nama yang di copy menjadi .env
+9. Modifikasi file .env tadi untuk bagian `DATABASE_URL`, ganti sesuai postgresql di masing-masing komputer
+10. Jalankan migrasi dengan ini dan memastikan koneksi database dengan API terjamin
 ``` bash
 python manage.py migrate
 ```
-8. Jika tanpa error, jalankan API dengan
+11. Jika tanpa error, jalankan API dengan
 ``` bash
 python manage.py runserver
 ``` 
