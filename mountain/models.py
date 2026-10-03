@@ -11,6 +11,9 @@ class MountainPicture(models.Model):
     image = models.ImageField(upload_to='mountain_pictures/')
     description = models.TextField(blank=True, null=True)
 
+    class Meta:
+        db_table = 'mountain_pictures'
+
 # Create your models here.
 class Mountain(models.Model):
     id = models.AutoField(primary_key=True)
@@ -30,9 +33,9 @@ class Mountain(models.Model):
         default=AlertLevel.SIAGA.value
     )
     main_image = models.ImageField(upload_to='mountain_images/')
-    pictures: models.ManyToManyField[MountainPicture, MountainPicture] = models.ManyToManyField(
-        MountainPicture,
-        related_name="mountains",
-    )    
+    pictures = models.ForeignKey(MountainPicture, on_delete=models.CASCADE) 
     is_favorite = models.BooleanField(default=False)
     is_volcanic_active = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'mountains'
