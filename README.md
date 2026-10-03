@@ -18,7 +18,7 @@ python -m venv .venv
 ```
 4. Aktifkan venv dengan command ini di Windows pada terminal VS Code
 ``` ps
-venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 ```
 5. Ubah interperter Python di VS Code untuk menggunakan venv dengan cara klik `Ctr` + `Shift` + `P` setelah itu ketik `Python: Select Interperter`. Pilih yang memiliki venv di kontennya contohnya seperti dibawah
 <img width="599" height="223" alt="image" src="https://github.com/user-attachments/assets/8187151e-c26e-4e16-a264-74c87b350684" />
@@ -39,7 +39,11 @@ CREATE DATABASE tenir;
 ``` bash
 python manage.py migrate
 ```
-11. Jika tanpa error, jalankan API dengan
+11. Untuk mengisi database langsung dengan data dummy jalankan command ini!
+``` bash
+python manage.py seed_db
+```
+12. Jika tanpa error, jalankan API dengan
 ``` bash
 python manage.py runserver
 ``` 
