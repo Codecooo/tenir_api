@@ -5,7 +5,7 @@ from hiker.schema import HikerIn, HikerOut
 
 router = Router()
 
-@router.post("/hiker/new", response=HikerOut)
+@router.post("/new", response=HikerOut)
 def create_hiker(payload: HikerIn):
     hiker = Hiker(
         first_name=payload.first_name, 
@@ -19,19 +19,19 @@ def create_hiker(payload: HikerIn):
     return hiker
 
 
-@router.get("/hiker/{hiker_id}", response=HikerOut)
+@router.get("/{hiker_id}", response=HikerOut)
 def get_hiker(hiker_id: int):
     return Hiker.objects.get(id=hiker_id)
 
 
-@router.delete("/hiker/delete/{hiker_id}")
+@router.delete("/delete/{hiker_id}")
 def delete_hiker(hiker_id: int):
     hiker = Hiker.objects.get(id=hiker_id)
     hiker.delete()
     return {"message": "Hiker deleted successfully."}
 
 
-@router.put("/hiker/update/{hiker_id}", response=HikerOut)
+@router.put("/update/{hiker_id}", response=HikerOut)
 def update_hiker(hiker_id: int, payload: HikerIn):
     hiker = Hiker.objects.get(id=hiker_id)
     hiker.first_name = payload.first_name
