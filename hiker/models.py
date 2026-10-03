@@ -7,6 +7,7 @@ class Hiker(models.Model):
     phone_number = models.CharField(max_length=15)
     emergency_contact_name = models.CharField(max_length=100)
     emergency_contact_phone = models.CharField(max_length=15)
+    medical_notes = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = 'hikers'
