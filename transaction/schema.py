@@ -1,17 +1,7 @@
 from typing import List
 from ninja import ModelSchema, Schema
-from .models import Hiker, Ticket, Transaction, Trip
-
-class HikerIn(ModelSchema):
-    class Meta:
-        model = Hiker
-        fields = ['first_name', 'last_name', 'identity_number', 'phone_number', 'emergency_contact_name', 'emergency_contact_phone']
-
-class HikerOut(ModelSchema):
-    class Meta:
-        model = Hiker
-        fields = '__all__'
-
+from .models import Ticket, Transaction, Trip
+from hiker.schema import HikerOut
 
 class TicketIn(ModelSchema):
     hiker_id: int
