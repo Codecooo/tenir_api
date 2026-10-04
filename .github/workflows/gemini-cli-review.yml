@@ -28,3 +28,4 @@ jobs:
           GEMINI_CLI_TRUST_WORKSPACE: "true"
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          prompt: "Review the code changes in this pull request and comment with any suggestions or issues refer to AGENTS.md for guidelines."
