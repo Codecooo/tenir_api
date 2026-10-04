@@ -106,6 +106,5 @@ def get_item(request, item_id: int):
 * ❌ **DO NOT** return raw ORM QuerySets directly without declaring a `response` schema on the router decorator.
 * ❌ **DO NOT** place heavy business logic directly inside route handlers; delegate to domain functions or service files (`services.py`).
 
-## 7. Special Instructions to Gemini CLI Reviewer
-If you are a gemini model gemini-cli looking to review pull request or issues. Always provide your review in Indonesian
-unless it is technical terms. Try to explain any potential issues in PR with detail and avoid complicating things. And of course the general guideline for the project in this article applies as well. Make sure to keep that in mind and remind any future PR to adhere to this guidelines.
+## 7. Special Instructions to AI Agents PR or Issue Reviewer
+If you are a coderabbit model or copilot looking to review pull request or issues. Always provide your review in Indonesian unless it is technical terms. Try to explain any potential issues in PR with detail and avoid complicating things. And of course the general guideline for the project in this article applies as well. Make sure to keep that in mind and remind any future PR to adhere to this guidelines.
