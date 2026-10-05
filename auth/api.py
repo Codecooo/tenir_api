@@ -1,14 +1,9 @@
-# Mengimport fungsi autentikasi dari Django
-from django.contrib.auth import authenticate, login, logout
+# Mengimport fungsi authenticate dari Django
+# Digunakan untuk mengecek username dan password
+from django.contrib.auth import authenticate
 
 # Mengimport model User bawaan Django
 from django.contrib.auth.models import User
-
-# Mengimport HttpResponse untuk response endpoint CSRF
-from django.http import HttpResponse
-
-# Mengimport decorator CSRF Django
-from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 
 # Mengimport Router dari Django Ninja
 from ninja import Router
@@ -16,10 +11,11 @@ from ninja import Router
 # Mengimport HttpError untuk membuat response error
 from ninja.errors import HttpError
 
-# Mengimport autentikasi berbasis session Django
-# django_auth = user yang sudah login
-# SessionAuthIsStaff = user yang login dan merupakan staff/admin
-from ninja.security import django_auth, SessionAuthIsStaff
+# Mengimport authentication JWT dari django-ninja-jwt
+from ninja_jwt.authentication import JWTAuth
+
+# Mengimport token serializer untuk membuat access dan refresh token
+from ninja_jwt.tokens import RefreshToken
 
 # Mengimport schema yang sudah dibuat
 from .schema import RegisterIn, LoginIn, UserOut
@@ -27,6 +23,12 @@ from .schema import RegisterIn, LoginIn, UserOut
 
 # Membuat router untuk endpoint authentication
 router = Router()
+
+
+# Membuat authentication JWT
+# Endpoint yang menggunakan jwt_auth
+# hanya dapat diakses jika request memiliki JWT yang valid
+jwt_auth = JWTAuth()
 
 
 # =========================================================
@@ -62,10 +64,11 @@ def register(request, payload: RegisterIn):
 # LOGIN
 # =========================================================
 
-@router.post("/login", response=UserOut)
+@router.post("/login")
 def login_user(request, payload: LoginIn):
 
-    # Memeriksa username dan password
+    # Memeriksa username dan password menggunakan
+    # sistem authentication bawaan Django
     user = authenticate(
         request,
         username=payload.username,
@@ -76,21 +79,33 @@ def login_user(request, payload: LoginIn):
     if user is None:
         raise HttpError(401, "Username atau password salah.")
 
-    # Membuat session login
-    login(request, user)
+    # Membuat refresh token berdasarkan user
+    refresh = RefreshToken.for_user(user)
 
-    # Mengembalikan data user
-    return user
+    # Mengembalikan access token dan refresh token
+    return {
+        "access": str(refresh.access_token),
+        "refresh": str(refresh),
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "is_staff": user.is_staff,
+        },
+    }
 
 
 # =========================================================
 # CURRENT USER / ME
 # =========================================================
 
-@router.get("/me", auth=django_auth, response=UserOut)
+@router.get("/me", auth=jwt_auth, response=UserOut)
 def current_user(request):
 
-    # Mengambil user yang sedang login
+    # Mengambil user berdasarkan JWT yang dikirim
+    # melalui Authorization: Bearer <token>
     return request.auth
 
 
@@ -98,43 +113,19 @@ def current_user(request):
 # AUTHORIZATION / ADMIN ONLY
 # =========================================================
 
-@router.get("/admin-only", auth=SessionAuthIsStaff())
+@router.get("/admin-only", auth=jwt_auth)
 def admin_only(request):
 
-    # Endpoint ini hanya dapat diakses
-    # oleh user yang sudah login dan berstatus staff/admin
+    # Mengambil user dari JWT
+    user = request.auth
+
+    # Mengecek apakah user merupakan staff/admin
+    if not user.is_staff:
+        raise HttpError(403, "Akses hanya untuk admin.")
+
+    # Jika user adalah admin
     return {
         "message": "Selamat datang di area admin.",
-        "user": request.auth.username,
-        "is_staff": request.auth.is_staff,
-    }
-
-
-# =========================================================
-# CSRF TOKEN
-# =========================================================
-
-@router.get("/csrf", auth=None)
-@ensure_csrf_cookie
-@csrf_exempt
-def get_csrf_token(request):
-
-    # Mengembalikan response kosong
-    # Django akan membuat cookie csrftoken
-    return HttpResponse()
-
-
-# =========================================================
-# LOGOUT
-# =========================================================
-
-@router.post("/logout", auth=django_auth)
-def logout_user(request):
-
-    # Menghapus session login user
-    logout(request)
-
-    # Mengembalikan pesan berhasil
-    return {
-        "message": "Logout berhasil."
+        "user": user.username,
+        "is_staff": user.is_staff,
     }
