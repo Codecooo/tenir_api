@@ -9,7 +9,7 @@ from .schema import TransactionIn, TransactionOut
 router = Router()
 
 @router.post("/new", response=TransactionOut)
-def create_transaction(payload: TransactionIn):
+def create_transaction(request, payload: TransactionIn):
     with transaction.atomic():
         # Create the parent Transaction instance
         trx = Transaction.objects.create(
@@ -36,7 +36,7 @@ def create_transaction(payload: TransactionIn):
 
 
 @router.get("/{transaction_id}", response=TransactionOut)
-def get_transaction(transaction_id: int):
+def get_transaction(request, transaction_id: int):
     trx = get_object_or_404(
         Transaction.objects.prefetch_related('tickets__hiker'),
         id=transaction_id
@@ -44,6 +44,6 @@ def get_transaction(transaction_id: int):
     return trx
 
 
-@router.get("/user/<int:user_id>", response=List[TransactionOut])
-def list_user_transactions(user_id: int):
-    return Transaction.objects.prefetch_related('tickets__hiker').filter(user_id=user_id)
+@router.get("/user/{user_id}", response=List[TransactionOut])
+def list_user_transactions(request, user_id: int):
+    return Transaction.objects.filter(user_id=user_id).prefetch_related('tickets__hiker')
