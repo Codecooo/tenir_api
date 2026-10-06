@@ -1,10 +1,9 @@
 from ninja import Schema
-from pydantic import EmailStr
 
 
 class RegisterIn(Schema):
     username: str
-    email: EmailStr
+    email: str
     password: str
     first_name: str = ""
     last_name: str = ""
@@ -14,6 +13,10 @@ class LoginIn(Schema):
     username: str
     password: str
 
+class LoginOut(Schema):
+    access_token: str
+    refresh_token: str
+    user: "UserOut"
 
 class RegisterOut(Schema):
     message: str

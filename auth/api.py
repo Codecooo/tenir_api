@@ -6,24 +6,15 @@ from django.db import IntegrityError, transaction
 
 from ninja import Router
 from ninja.errors import HttpError
-
-from ninja_jwt.authentication import JWTAuth
 from ninja_jwt.tokens import RefreshToken
 
-from .schema import RegisterIn, LoginIn, RegisterOut, UserOut
+from .schema import LoginOut, RegisterIn, LoginIn, RegisterOut, UserOut
 
 
 router = Router()
-jwt_auth = JWTAuth()
 
-
-# =========================================================
-# REGISTER
-# =========================================================
-
-@router.post("/register", response={201: RegisterOut})
+@router.post("/register", response={201: RegisterOut}, auth=None)
 def register(request, payload: RegisterIn):
-
     # Membuat user sementara untuk menjalankan
     # validasi password Django
     user = User(
@@ -76,14 +67,8 @@ def register(request, payload: RegisterIn):
         "message": "Registrasi berhasil."
     }
 
-
-# =========================================================
-# LOGIN
-# =========================================================
-
-@router.post("/login")
+@router.post("/login", response=LoginOut, auth=None)
 def login_user(request, payload: LoginIn):
-
     # Mengecek username dan password
     user = authenticate(
         request,
@@ -103,36 +88,25 @@ def login_user(request, payload: LoginIn):
 
     # Mengembalikan access token, refresh token,
     # dan informasi user
-    return {
-        "access": str(refresh.access_token),
-        "refresh": str(refresh),
-        "user": {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "is_staff": user.is_staff,
-        },
-    }
+    return LoginOut(
+        access_token=str(refresh.access_token),
+        refresh_token=str(refresh),
+        user=UserOut(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            is_staff=user.is_staff,
+        )
+    )
 
-
-# =========================================================
-# CURRENT USER
-# =========================================================
-
-@router.get("/me", auth=jwt_auth, response=UserOut)
+@router.get("/me", response=UserOut)
 def current_user(request):
-
     # Mengembalikan user yang sedang login
     return request.auth
 
-
-# =========================================================
-# ADMIN ONLY
-# =========================================================
-
-@router.get("/admin-only", auth=jwt_auth)
+@router.get("/admin-only")
 def admin_only(request):
 
     # Mengambil user dari JWT
