@@ -12,20 +12,11 @@ class Migration(migrations.Migration):
             sql="""
                 ALTER TABLE auth_user
                 DROP CONSTRAINT IF EXISTS auth_user_email_unique;
-            """,
-            reverse_sql="""
-                ALTER TABLE auth_user
-                ADD CONSTRAINT auth_user_email_unique UNIQUE (email);
-            """,
-        ),
-        migrations.RunSQL(
-            sql="""
-                CREATE UNIQUE INDEX auth_user_email_non_empty_unique
+
+                CREATE UNIQUE INDEX IF NOT EXISTS auth_user_email_non_empty_unique
                 ON auth_user (email)
                 WHERE email <> '';
             """,
-            reverse_sql="""
-                DROP INDEX IF EXISTS auth_user_email_non_empty_unique;
-            """,
+            reverse_sql=migrations.RunSQL.noop,
         ),
     ]

@@ -10,12 +10,12 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunSQL(
             sql="""
-                ALTER TABLE auth_user
-                ADD CONSTRAINT auth_user_email_unique UNIQUE (email);
+                CREATE UNIQUE INDEX auth_user_email_non_empty_unique
+                ON auth_user (email)
+                WHERE email <> '';
             """,
             reverse_sql="""
-                ALTER TABLE auth_user
-                DROP CONSTRAINT auth_user_email_unique;
+                DROP INDEX IF EXISTS auth_user_email_non_empty_unique;
             """,
         ),
     ]
