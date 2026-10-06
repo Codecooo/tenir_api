@@ -14,6 +14,10 @@ class LoginIn(Schema):
     password: str
 
 
+class RegisterOut(Schema):
+    message: str
+
+
 class UserOut(Schema):
     id: int
     username: str
