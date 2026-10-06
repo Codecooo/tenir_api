@@ -33,9 +33,7 @@ class Trip(models.Model):
 class Transaction(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
-    tickets: models.ManyToManyField[Ticket, Ticket] = models.ManyToManyField(
-        Ticket, related_name='transactions'
-    )
+    tickets = models.ManyToManyField(Ticket, related_name='transactions')
     total_amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(
         max_length=20,
