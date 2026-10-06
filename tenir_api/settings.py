@@ -36,9 +36,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'transaction',
-    'mountain',
+    'rest_framework',
+    'rest_framework_simplejwt',
     'hiker',
+    'mountain',
+    'transaction',
+    'user',          
+    'equipment',
 ]
 
 MIDDLEWARE = [
