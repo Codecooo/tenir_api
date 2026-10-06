@@ -1,38 +1,19 @@
-# Mengimport fungsi authenticate dari Django
-# Digunakan untuk mengecek username dan password
 from django.contrib.auth import authenticate
-
-# Mengimport model User bawaan Django
 from django.contrib.auth.models import User
-
-# Mengimport IntegrityError dan transaction
-# Digunakan untuk menangani duplicate data dan race condition
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 
-# Mengimport Router dari Django Ninja
 from ninja import Router
-
-# Mengimport HttpError untuk membuat response error
 from ninja.errors import HttpError
 
-# Mengimport authentication JWT
 from ninja_jwt.authentication import JWTAuth
-
-# Mengimport token serializer untuk membuat
-# access token dan refresh token
 from ninja_jwt.tokens import RefreshToken
 
-# Mengimport schema yang digunakan endpoint authentication
 from .schema import RegisterIn, LoginIn, RegisterOut, UserOut
 
 
-# Membuat router untuk endpoint authentication
 router = Router()
-
-
-# Membuat authentication JWT
-# Endpoint yang menggunakan jwt_auth hanya dapat
-# diakses jika request memiliki JWT yang valid
 jwt_auth = JWTAuth()
 
 
@@ -43,43 +24,54 @@ jwt_auth = JWTAuth()
 @router.post("/register", response={201: RegisterOut})
 def register(request, payload: RegisterIn):
 
+    # Membuat user sementara untuk menjalankan
+    # validasi password Django
+    user = User(
+        username=payload.username,
+        email=payload.email,
+        first_name=payload.first_name,
+        last_name=payload.last_name,
+    )
+
+    # Memvalidasi password menggunakan validator Django
+    try:
+        validate_password(payload.password, user=user)
+    except ValidationError as exc:
+        raise HttpError(
+            400,
+            "Password tidak memenuhi ketentuan: "
+            + " ".join(exc.messages)
+        )
+
     # Mengecek apakah username atau email sudah digunakan
     if (
         User.objects.filter(username=payload.username).exists()
         or User.objects.filter(email=payload.email).exists()
     ):
-        # Menggunakan pesan generic agar tidak membocorkan
-        # apakah username atau email yang sudah terdaftar
         raise HttpError(
             400,
             "Username atau email sudah digunakan."
         )
 
+    # Membuat user secara aman di dalam database transaction
     try:
-        # Membuat transaksi database
-        # agar proses pembuatan user berjalan secara aman
         with transaction.atomic():
-
-            # Membuat user baru
-            # create_user otomatis melakukan hashing password
-            user = User.objects.create_user(
+            User.objects.create_user(
                 username=payload.username,
                 email=payload.email,
                 password=payload.password,
                 first_name=payload.first_name,
                 last_name=payload.last_name,
             )
-
-    # Menangani kemungkinan duplicate username/email
-    # yang terjadi akibat request secara bersamaan
     except IntegrityError:
+        # Menangani kemungkinan duplicate data
+        # akibat race condition
         raise HttpError(
             400,
             "Username atau email sudah digunakan."
         )
 
     # Register berhasil
-    # Tidak mengembalikan object user
     return 201, {
         "message": "Registrasi berhasil."
     }
@@ -92,26 +84,25 @@ def register(request, payload: RegisterIn):
 @router.post("/login")
 def login_user(request, payload: LoginIn):
 
-    # Memeriksa username dan password menggunakan
-    # sistem authentication bawaan Django
+    # Mengecek username dan password
     user = authenticate(
         request,
         username=payload.username,
         password=payload.password
     )
 
-    # Jika username atau password salah
+    # Jika login gagal
     if user is None:
         raise HttpError(
             401,
             "Username atau password salah."
         )
 
-    # Membuat refresh token berdasarkan user
+    # Membuat refresh token
     refresh = RefreshToken.for_user(user)
 
-    # Mengembalikan access token,
-    # refresh token, dan informasi user
+    # Mengembalikan access token, refresh token,
+    # dan informasi user
     return {
         "access": str(refresh.access_token),
         "refresh": str(refresh),
@@ -127,20 +118,18 @@ def login_user(request, payload: LoginIn):
 
 
 # =========================================================
-# CURRENT USER / ME
+# CURRENT USER
 # =========================================================
 
 @router.get("/me", auth=jwt_auth, response=UserOut)
 def current_user(request):
 
-    # Mengambil user berdasarkan JWT
-    # yang dikirim melalui:
-    # Authorization: Bearer <access_token>
+    # Mengembalikan user yang sedang login
     return request.auth
 
 
 # =========================================================
-# AUTHORIZATION / ADMIN ONLY
+# ADMIN ONLY
 # =========================================================
 
 @router.get("/admin-only", auth=jwt_auth)
