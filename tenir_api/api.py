@@ -1,10 +1,9 @@
 from ninja import NinjaAPI
-
 # Router JWT untuk mendapatkan access token
 # dan refresh token
 from ninja_jwt.authentication import JWTAuth
 from ninja_jwt.routers.obtain import obtain_pair_router
-
+from mountain.api import router as mountain_router
 from transaction.api import router as transaction_router
 from hiker.api import router as hiker_router
 from auth.api import router as auth_router
@@ -23,6 +22,12 @@ api.add_router(
     "/hikers/",
     hiker_router,
     tags=["Hikers"]
+)
+
+api.add_router(
+    "/mountains",
+    mountain_router,
+    tags=["Mountain"]
 )
 
 api.add_router(
