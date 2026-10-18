@@ -46,4 +46,7 @@ python manage.py seed_db
 12. Jika tanpa error, jalankan API dengan
 ``` bash
 python manage.py runserver
-``` 
+```
+
+## Migration
+Migration menggunakan Django ORM auto generated dengan seeding fake data memakai script Python Faker dengan lokasi source code di [seed_db.py](https://github.com/Codecooo/tenir_api/blob/main/mountain/management/commands/seed_db.py). Cara migration ada di cara setup project.
